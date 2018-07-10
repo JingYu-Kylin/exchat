@@ -23,3 +23,7 @@ erl_crash.dump
 exchat-*.tar
 
 /_build/
+
+
+/.idea
+*.iml
