@@ -1,3 +1,2 @@
 defmodule Exchat do
-  
 end

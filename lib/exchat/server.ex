@@ -1,76 +1,48 @@
 defmodule Exchat.Server do
-  use GenServer
-
-  @default_port 1055
-  defstruct [:port, :lsock, connecting_count: 0]
-
-  def start_link(opts) do
-    port = Keyword.get(opts, :port, @default_port)
-    GenServer.start_link(__MODULE__, port, opts)
-  end
+  import Exchat.Message
 
   @doc """
-  获取连接数
+  监听端口并等待 TCP 连接
   """
-  def get_connecting_count do
-    GenServer.call(__MODULE__, :get_connecting_count)
+  def accept(port) do
+    {:ok, socket} =
+      :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
+    loop_acceptor(socket)
   end
 
-  @doc """
-  停止进程
-  """
-  def stop do
-    GenServer.cast(__MODULE__, :stop)
+  defp loop_acceptor(socket) do
+    {:ok, client} = :gen_tcp.accept(socket)
+    {:ok, pid} = Task.Supervisor.start_child(Exchat.TaskSupervisor, fn -> serve(client) end)
+    :ok = :gen_tcp.controlling_process(client, pid)
+    print_on_accept()
+    loop_acceptor(socket)
   end
 
-  def init(port) do
-    {:ok, lsock} = :gen_tcp.listen(port, [active: true])
-    {:ok, %__MODULE__{port: port, lsock: lsock}, 0}
+  defp serve(socket) do
+    line = read_line(socket)
+    print_on_receive(line)
+    write_ok(socket)
+
+    serve(socket)
   end
 
-  @doc """
-  处理 TCP 数据
-  """
-  def handle_info({:tcp, socket, raw_data}, state) do
-    :gen_tcp.send(socket, "#{IO.ANSI.color(64)}Received: #{IO.ANSI.default_color()}#{raw_data}")
-    {:noreply, state}
+  defp read_line(socket) do
+    case :gen_tcp.recv(socket, 0) do
+      {:ok, data} -> data
+      {:error, :closed} ->
+        print_on_closed()
+        Process.exit(self(), :kill)
+    end
   end
 
-  @doc """
-  处理超时（接受连接）
-  """
-  def handle_info(:timeout, %{lsock: lsock} = state) do
-    {:ok, _sock} = :gen_tcp.accept(lsock)
-    {:noreply, state}
+  defp write_line(line, socket) do
+    :gen_tcp.send(socket, line)
   end
 
-  @doc """
-  连接关闭
-  """
-  def handle_info({:tcp_closed, _port}, state) do
-    {:stop, :normal, state}
-  end
-
-  @doc """
-  返回连接数
-  """
-  def handle_call(:get_connecting_count, _from, state) do
-    {:reply, {:ok, state.connecting_count}, state}
-  end
-
-  @doc """
-  关闭 GenServer
-  """
-  def handle_cast(:stop, state) do
-    {:stop, :normal, state}
-  end
-
-
-  def terminate(_reason, _state) do
-    :ok
-  end
-
-  def code_change(_old_vsn, state, _extra) do
-    {:ok, state}
+  defp write_ok(socket) do
+    write_line(
+      gen_response_ok(),
+      socket
+    )
   end
 end
