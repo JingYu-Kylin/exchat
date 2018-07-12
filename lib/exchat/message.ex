@@ -37,4 +37,10 @@ defmodule Exchat.Message do
       IO.ANSI.default_color()
     }\n"
   end
+
+  def gen_leaves_msg(nickname) do
+    "#{IO.ANSI.color(11)}User #{IO.ANSI.color(14)}#{nickname}#{IO.ANSI.color(63)} leaves the chat room.#{
+      IO.ANSI.default_color()
+    }\n"
+  end
 end

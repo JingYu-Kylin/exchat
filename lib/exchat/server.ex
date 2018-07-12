@@ -50,7 +50,7 @@ defmodule Exchat.Server do
 
     # 广播新用户加入消息
     Message.gen_welcome_msg_for_new_user(nickname)
-    |> response_all()
+    |> response_all(pid)
   end
 
   # 读取并响应消息
@@ -58,16 +58,16 @@ defmodule Exchat.Server do
     line = read_line(socket)
     Message.print_on_receive(line)
     write_ok(socket)
-    response_all(line)
+    response_all(line, self())
     serve(socket)
   end
 
   # 将消息广播全部所连接的客户端
-  defp response_all(msg) do
+  defp response_all(msg, cpid) do
     :ets.match(:client_socket, {:"$1", :"$2"})
     |> Enum.each(fn [pid, socket] ->
-      if pid != self(),
-        do: write_line(Message.gen_msg_header(gen_nickname_by_pid(self())) <> msg, socket)
+      if pid != cpid,
+        do: write_line(Message.gen_msg_header(gen_nickname_by_pid(cpid)) <> msg, socket)
     end)
   end
 
@@ -80,6 +80,10 @@ defmodule Exchat.Server do
       {:error, :closed} ->
         Message.print_on_closed()
         remove_client(self())
+
+        Message.gen_leaves_msg(gen_nickname_by_pid(self()))
+        |> response_all(self())
+
         Process.exit(self(), :kill)
     end
   end
