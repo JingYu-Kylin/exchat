@@ -27,3 +27,4 @@ exchat-*.tar
 
 /.idea
 *.iml
+event.log

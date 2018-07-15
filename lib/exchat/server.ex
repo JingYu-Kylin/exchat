@@ -1,5 +1,5 @@
 defmodule Exchat.Server do
-  alias Exchat.{Message, Broadcast}
+  alias Exchat.{Message, Broadcast, Event}
 
   @clients_table :client_socket
 
@@ -47,7 +47,7 @@ defmodule Exchat.Server do
     :ok = :gen_tcp.controlling_process(client, pid)
     # 添加进客户端列表
     add_client(pid, client)
-    Message.print_on_accept()
+    Event.connected(gen_nickname_by_pid(pid))
     # 发送欢迎消息
     welcome(pid, client)
     loop_acceptor(socket)
