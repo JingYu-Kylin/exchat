@@ -72,7 +72,7 @@ defmodule Exchat.Server do
   """
   def serve(socket) do
     line = read_line(socket)
-    Message.print_on_receive(line)
+    Event.receive_msg(gen_nickname_by_pid(self()), line)
     write_ok(socket)
     Broadcast.response_all(line, self())
     serve(socket)
@@ -95,7 +95,7 @@ defmodule Exchat.Server do
   处理连接关闭
   """
   def handle_closed do
-    Message.print_on_closed()
+    Event.closed(gen_nickname_by_pid(self()))
     remove_client(self())
 
     Message.gen_leaves_msg(gen_nickname_by_pid(self()))
