@@ -71,11 +71,16 @@ defmodule Exchat.Server do
   读取并响应消息
   """
   def serve(socket) do
-    line = read_line(socket)
-    Event.receive_msg(gen_nickname_by_pid(self()), line)
-    write_ok(socket)
-    Broadcast.response_all(line, self())
-    serve(socket)
+    try do
+      line = read_line(socket)
+      Event.receive_msg(gen_nickname_by_pid(self()), line)
+      write_ok(socket)
+      Broadcast.response_all(line, self())
+      serve(socket)
+    rescue
+      _ in _ -> handle_closed()
+    end
+
   end
 
   @doc """
@@ -115,6 +120,7 @@ defmodule Exchat.Server do
   响应 ok
   """
   def write_ok(socket) do
+    1 / 0
     write_line(
       Message.gen_response_ok(),
       socket
@@ -125,6 +131,9 @@ defmodule Exchat.Server do
   通过 pid 生成昵称
   """
   def gen_nickname_by_pid(pid) do
-    "#{:erlang.pid_to_list(pid) |> List.to_string()}"
+    "#{
+      :erlang.pid_to_list(pid)
+      |> List.to_string()
+    }"
   end
 end
