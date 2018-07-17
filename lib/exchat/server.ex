@@ -27,6 +27,14 @@ defmodule Exchat.Server do
     :ets.match(:client_socket, {:"$1", :"$2"})
   end
 
+  def start_link(args) do
+    port = Keyword.get(args, :port)
+    name = Keyword.get(args, :name, __MODULE__)
+    {:ok, pid} = Task.start_link(fn -> accept(port) end)
+    Process.register(pid, name)
+    {:ok, pid}
+  end
+
   @doc """
   监听端口并等待 TCP 连接
   """
@@ -134,5 +142,13 @@ defmodule Exchat.Server do
       :erlang.pid_to_list(pid)
       |> List.to_string()
     }"
+  end
+
+  def child_spec(arg) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [arg]},
+      restart: :permanent
+    }
   end
 end

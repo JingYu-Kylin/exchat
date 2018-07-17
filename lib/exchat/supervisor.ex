@@ -13,8 +13,8 @@ defmodule Exchat.Supervisor do
     children = [
       {Exchat.Broadcast, name: Exchat.Broadcast},
       {Task.Supervisor, name: Exchat.TaskSupervisor},
-      Supervisor.child_spec({Task, fn -> Server.accept(port) end}, restart: :permanent),
-      Supervisor.child_spec(Exchat.Event, %{})
+      {Exchat.Server, name: Exchat.Server, port: 1056},
+      Supervisor.child_spec(Exchat.Event, [])
     ]
 
     Supervisor.init(children, strategy: :one_for_one, name: Exchat.Supervisor)
