@@ -120,7 +120,6 @@ defmodule Exchat.Server do
   响应 ok
   """
   def write_ok(socket) do
-    1 / 0
     write_line(
       Message.gen_response_ok(),
       socket
