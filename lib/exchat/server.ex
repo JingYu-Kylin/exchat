@@ -1,6 +1,5 @@
 defmodule Exchat.Server do
   alias Exchat.{Message, Broadcast, Event}
-
   @clients_table :client_socket
 
   @doc """
@@ -88,7 +87,6 @@ defmodule Exchat.Server do
     rescue
       _ in _ -> handle_closed()
     end
-
   end
 
   @doc """
