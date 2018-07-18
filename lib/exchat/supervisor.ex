@@ -13,7 +13,7 @@ defmodule Exchat.Supervisor do
     children = [
       {Exchat.Broadcast, name: Exchat.Broadcast},
       {Task.Supervisor, name: Exchat.TaskSupervisor},
-      {Exchat.Server, name: Exchat.Server, port: 1056},
+      {Exchat.Server, name: Exchat.Server, port: port},
       Supervisor.child_spec(Exchat.Event, [])
     ]
 
