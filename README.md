@@ -4,7 +4,7 @@ A chat room server, implemented using the Elixir language.
 
 ## Description
 
-This is a simple OTP Demo application that includes a use case for GenServer/:gen_event/Task/Task.Supervisor/:gen_tcp/:ets and Supervision Tree, using Distillery Dockerized.
+This is a simple OTP demo application that includes a use case for GenServer/:gen_event/Task/Task.Supervisor/:gen_tcp/:ets and Supervision Tree, using Distillery Dockerized.
 
 ## Running
 
