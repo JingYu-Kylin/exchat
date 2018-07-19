@@ -1,4 +1,8 @@
 defmodule Exchat.Broadcast do
+  @moduledoc """
+    广播消息内容
+  """
+
   use GenServer
 
   alias Exchat.{Server, Message}

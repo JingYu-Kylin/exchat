@@ -1,4 +1,7 @@
 defmodule Exchat.Application do
+  @moduledoc """
+    OTP 入口
+  """
   use Application
   alias Exchat.{Server, Supervisor}
 

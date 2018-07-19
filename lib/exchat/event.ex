@@ -1,4 +1,7 @@
 defmodule Exchat.Event do
+  @moduledoc """
+    事件管理器以及具体的事件触发函数
+  """
   def start_link do
     :gen_event.start_link({:local, __MODULE__})
   end

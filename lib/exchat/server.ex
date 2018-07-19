@@ -1,4 +1,8 @@
 defmodule Exchat.Server do
+  @moduledoc """
+    监听并处理连接
+  """
+
   alias Exchat.{Message, Broadcast, Event}
   @clients_table :client_socket
 
@@ -66,12 +70,12 @@ defmodule Exchat.Server do
   def welcome(pid, socket) do
     nickname = gen_nickname_by_pid(pid)
     # 发送欢迎消息
-    Message.gen_welcome_msg(nickname)
-    |> write_line(socket)
+    msg = Message.gen_welcome_msg(nickname)
+    write_line(msg, socket)
 
     # 广播新用户加入消息
-    Message.gen_welcome_msg_for_new_user(nickname)
-    |> Broadcast.response_all(pid)
+    msg = Message.gen_welcome_msg_for_new_user(nickname)
+    Broadcast.response_all(msg, pid)
   end
 
   @doc """
@@ -109,8 +113,8 @@ defmodule Exchat.Server do
     Event.closed(gen_nickname_by_pid(self()))
     remove_client(self())
 
-    Message.gen_leaves_msg(gen_nickname_by_pid(self()))
-    |> Broadcast.response_all(self())
+    msg = Message.gen_leaves_msg(gen_nickname_by_pid(self()))
+    Broadcast.response_all(msg, self())
 
     Process.exit(self(), :kill)
   end
@@ -136,10 +140,7 @@ defmodule Exchat.Server do
   通过 pid 生成昵称
   """
   def gen_nickname_by_pid(pid) do
-    "#{
-      :erlang.pid_to_list(pid)
-      |> List.to_string()
-    }"
+    "#{List.to_string(:erlang.pid_to_list(pid))}"
   end
 
   def child_spec(arg) do

@@ -1,4 +1,7 @@
 defmodule Exchat.Supervisor do
+  @moduledoc """
+    组织监督和工作进程
+  """
   use Supervisor
 
   def start_link(opts) do

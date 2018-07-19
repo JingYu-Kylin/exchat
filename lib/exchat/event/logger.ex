@@ -1,4 +1,7 @@
 defmodule Exchat.Event.Logger do
+  @moduledoc """
+    日志事件处理器
+  """
   @behaviour :gen_event
   alias Exchat.{Event}
 
