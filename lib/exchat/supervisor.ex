@@ -1,6 +1,5 @@
 defmodule Exchat.Supervisor do
   use Supervisor
-  alias Exchat.{Server}
 
   def start_link(opts) do
     Supervisor.start_link(__MODULE__, :ok, opts)
@@ -12,7 +11,7 @@ defmodule Exchat.Supervisor do
 
     children = [
       {Exchat.Broadcast, name: Exchat.Broadcast},
-      {Task.Supervisor, name: Exchat.TaskSupervisor},
+      {Task.Supervisor, name: Exchat.ConnSupervisor},
       {Exchat.Server, name: Exchat.Server, port: port},
       Supervisor.child_spec(Exchat.Event, [])
     ]

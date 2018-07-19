@@ -50,7 +50,7 @@ defmodule Exchat.Server do
   def loop_acceptor(socket) do
     {:ok, client} = :gen_tcp.accept(socket)
     # 启动新进程处理数据
-    {:ok, pid} = Task.Supervisor.start_child(Exchat.TaskSupervisor, fn -> serve(client) end)
+    {:ok, pid} = Task.Supervisor.start_child(Exchat.ConnSupervisor, fn -> serve(client) end)
     :ok = :gen_tcp.controlling_process(client, pid)
     # 添加进客户端列表
     add_client(pid, client)
